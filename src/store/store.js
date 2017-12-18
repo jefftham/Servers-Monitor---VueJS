@@ -19,13 +19,16 @@ export default new Vuex.Store({
       state.userId = userData.userId;
     },
     storeUser(state, user) {
-      state.user = user;
+      state.user = Object.assign({}, user);
     },
     clearAuthData(state) {
       state.user = null;
       state.idToken = null;
       state.userId = null;
       localStorage.clear();
+    },
+    saveUserServers(state, servers) {
+      state.user.servers = servers;
     },
   },
   actions: {
@@ -35,15 +38,10 @@ export default new Vuex.Store({
         Vue.$log.info('store.js refreshToken run');
 
         axios
-          .post(
-            `https://securetoken.googleapis.com/v1/token?key=${
-              this.state.firebaseApiKey
-            }`,
-          {
+          .post(`https://securetoken.googleapis.com/v1/token?key=${this.state.firebaseApiKey}`, {
             grant_type: 'refresh_token',
             refresh_token: context.state.user.refreshToken,
-          },
-          )
+          })
           .then((res) => {
             Vue.$log.info('store.js authUserData res ', res);
 
@@ -152,6 +150,9 @@ export default new Vuex.Store({
 
       // 10 seconds before actual expireDate
       context.dispatch('refreshToken', expiredIn - 10000);
+
+      //
+      router.replace('/servers');
     },
     logout(context) {
       context.commit('clearAuthData');
@@ -176,18 +177,14 @@ export default new Vuex.Store({
         return;
       }
       axiosFB
-        .get(
-          `/users/${context.state.userId}.json?auth=${context.state.idToken}`,
-        )
+        .get(`/users/${context.state.userId}.json?auth=${context.state.idToken}`)
         .then((res) => {
           Vue.$log.info('store.js - retrieveUserFromFB res ', res);
           const data = res.data;
           Vue.$log.info('store.js - retrieveUserFromFB user', data);
           context.commit('storeUser', data);
         })
-        .catch(error =>
-          Vue.$log.info('store.js - retrieveUserFromFB err ', error),
-        );
+        .catch(error => Vue.$log.info('store.js - retrieveUserFromFB err ', error));
     },
     tryAutoLogin(context) {
       Vue.$log.info('store.js - tryAutoLogin run');
@@ -212,6 +209,21 @@ export default new Vuex.Store({
       });
 
       context.dispatch('retrieveUserFromFB');
+    },
+    longPolling(context, url) {
+      // a third party website that handle cors issue.
+      // because this project does not include backend server
+      const proxyWebsite = 'https://cors-anywhere.herokuapp.com/';
+      return new Promise((resolve, reject) => {
+        axios
+          .get(proxyWebsite + url)
+          .then((res) => {
+            resolve(res.status);
+          })
+          .catch((error) => {
+            reject(error.response.status);
+          });
+      });
     },
   },
 });
