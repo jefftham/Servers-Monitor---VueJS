@@ -5,12 +5,14 @@ import VueLogger from 'vuejs-logger';
 import ElementUI from 'element-ui';
 import locale from 'element-ui/lib/locale/lang/en';
 import VueMarkdown from 'vue-markdown';
+import axios from 'axios';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App';
 import router from './router';
 import store from './store/store';
 
 Vue.config.productionTip = false;
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 Vue.use(VueMarkdown);
 Vue.use(VueLogger, process.env.logOptions);

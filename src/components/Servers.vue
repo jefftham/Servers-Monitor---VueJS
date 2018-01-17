@@ -2,7 +2,11 @@
   <div class="divBox">
     <el-row :gutter="10">
       <el-col :span="22" :offset="1">
+<<<<<<< HEAD
         <el-table ref="singleTable" stripe :data="tableData" :default-sort="{prop: 'date', order: 'descending'}" highlight-current-row style="width: 100%">
+=======
+        <el-table ref="singleTable" stripe :data="servers" :default-sort="{prop: 'date', order: 'descending'}" highlight-current-row style="width: 100%">
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
           <el-table-column type="index" width="50">
           </el-table-column>
           <el-table-column property="url" sortable label="URL">
@@ -15,13 +19,21 @@
 
           <el-table-column prop="status" label="Status" width="100" :filters="[{ text: 'Online', value: 'Online' }, { text: 'Offline', value: 'Offline' }]" :filter-method="filterTag" filter-placement="bottom-end">
             <template slot-scope="scope">
+<<<<<<< HEAD
               <el-tag :type="scope.row.status === 'Online' ? 'success' : 'danger'" close-transition>{{scope.row.status}}</el-tag>
+=======
+              <el-tag :type="scope.row.status === 200 ? 'success' : 'danger'" close-transition>{{scope.row.status}}</el-tag>
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
             </template>
           </el-table-column>
           <el-table-column fixed="right" label="Operations" width="180">
             <template slot-scope="scope">
               <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+<<<<<<< HEAD
               <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" size="mini" type="danger">
+=======
+              <el-button @click.native.prevent="deleteRow(scope.$index, servers)" size="mini" type="danger">
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
                 Remove
               </el-button>
             </template>
@@ -77,6 +89,7 @@ export default {
     };
 
     return {
+<<<<<<< HEAD
       tableData: [
         {
           timestamp: 1513198887261,
@@ -107,6 +120,10 @@ export default {
           status: 'Offline',
         },
       ],
+=======
+      interval: null,
+      servers: [],
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
       isEdit: false,
       clickedConfirmButton: false,
       indexForEdit: null,
@@ -135,9 +152,13 @@ export default {
 
   },
   watch: {
+<<<<<<< HEAD
     tableData() {
       console.log('detected tableData changed...!');
     },
+=======
+
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
   },
   methods: {
     openAddServerDialog() {
@@ -156,7 +177,14 @@ export default {
       };
     },
     filterTag(value, row) {
+<<<<<<< HEAD
       return row.tag === value;
+=======
+      if (value === 'Online') {
+        return row.status === 200;
+      }
+      return row.status !== 200;
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
     },
     handleEdit(index, row) {
       // console.log(index, row);
@@ -173,6 +201,11 @@ export default {
         message: 'Server deleted!',
         type: 'success',
       });
+<<<<<<< HEAD
+=======
+      this.$store.commit('saveUserServers', this.servers);
+      this.$store.dispatch('storeUserToFB');
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
     },
 
     submitForm(formName) {
@@ -182,20 +215,40 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           // add server
+<<<<<<< HEAD
           this.ruleForm2.timestamp = Date.now();
           if (!this.isEdit) {
             this.tableData.push(this.ruleForm2);
+=======
+
+          // lastUpdate = "now" - "checkEvery minute"
+          this.ruleForm2.lastUpdate = Date.now() - (this.ruleForm2.checkEvery * 1000 * 60);
+          if (!this.isEdit) {
+            this.servers.push(this.ruleForm2);
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
             this.$message({
               message: 'Server added!',
               type: 'success',
             });
+<<<<<<< HEAD
           } else {
             // if isEdit === true, do nothing
+=======
+            this.$store.commit('saveUserServers', this.servers);
+            this.$store.dispatch('storeUserToFB');
+          } else {
+            // if isEdit === true, two-way binding
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
             this.clickedConfirmButton = true;
             this.$message({
               message: 'Server edited!',
               type: 'success',
             });
+<<<<<<< HEAD
+=======
+            this.$store.commit('saveUserServers', this.servers);
+            this.$store.dispatch('storeUserToFB');
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
           }
         } else {
           // console.log('Server info is not valid!!');
@@ -206,6 +259,7 @@ export default {
     },
     resetForm(formName) {
       this.dialogFormVisible = false;
+<<<<<<< HEAD
       this.tableData[this.indexForEdit] = this.rowBeforeEdit;
       this.$refs[formName].resetFields();
     },
@@ -221,6 +275,65 @@ export default {
       this.$log.error(this.tableData);
     },
   },
+=======
+      this.servers[this.indexForEdit] = this.rowBeforeEdit;
+      this.$refs[formName].resetFields();
+    },
+    dialogClose() {
+      // console.log('dialogClosed');
+      if (!this.clickedConfirmButton) {
+        // reset the original value
+
+        this.servers[this.indexForEdit] = this.rowBeforeEdit;
+        this.servers = JSON.parse(JSON.stringify(this.servers));
+        this.$message.error('Server info is not saved!');
+        // this.$nextTick();
+      }
+    },
+    debug() {
+      this.$log.error(this.servers);
+    },
+  },
+  created() {
+    // a interval to check every server and perform long polling
+
+    const customInterval = () => {
+      // console.log('interval run ', new Date());
+      // console.log('length of servers = ', this.servers ? this.servers.length : 0);
+      if (this.servers.length) {
+        this.servers.forEach((server, i) => {
+          const refreshInMilliseconds = server.checkEvery * 60 * 100;
+          if (server.lastUpdate + refreshInMilliseconds <= Date.now()) {
+            // console.log(`long polling ${server.url}`);
+            this.$store.dispatch('longPolling', server.url)
+              .then((status) => {
+                // console.log(`${server.url} = `, status);
+                this.servers[i].status = status;
+                this.servers = JSON.parse(JSON.stringify(this.servers));
+              })
+              .catch((status) => {
+                // console.log(`${server.url} = `, status);
+                this.servers[i].status = status;
+                this.servers = JSON.parse(JSON.stringify(this.servers));
+              });
+          }
+        });
+      }
+
+      this.interval = setTimeout(customInterval, 1000 * 60);
+    };
+
+    this.interval = setTimeout(() => {
+      /* eslint-disable */
+      this.servers = this.$store.state.user ?
+        (this.$store.state.user.servers ? this.$store.state.user.servers : []) : [],
+        customInterval();
+    }, 1 * 1000);
+  },
+  beforeDestroy() {
+    clearTimeout(this.interval);
+  },
+>>>>>>> b39bd5a1069a85c6ff21ae96aa69587e32f5ade5
 };
 </script>
 
