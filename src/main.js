@@ -3,6 +3,7 @@
 import Vue from 'vue';
 import VueLogger from 'vuejs-logger';
 import ElementUI from 'element-ui';
+import locale from 'element-ui/lib/locale/lang/en';
 import VueMarkdown from 'vue-markdown';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App';
@@ -13,7 +14,7 @@ Vue.config.productionTip = false;
 
 Vue.use(VueMarkdown);
 Vue.use(VueLogger, process.env.logOptions);
-Vue.use(ElementUI);
+Vue.use(ElementUI, { locale });
 
 /* eslint-disable no-new */
 new Vue({
